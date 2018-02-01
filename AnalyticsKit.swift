@@ -1,25 +1,7 @@
 import Foundation
 
-@objc
-public protocol AnalyticsKitProvider {
-    func applicationWillEnterForeground()
-    func applicationDidEnterBackground()
-    func applicationWillTerminate()
-    func uncaughtException(_ exception: NSException)
-    func logScreen(_ screenName: String)
-    func logScreen(_ screenName: String, withProperties properties: [String: Any])
-    func logEvent(_ event: String)
-    func logEvent(_ event: String, withProperty key: String, andValue value: String)
-    func logEvent(_ event: String, withProperties properties: [String: Any])
-    func logEvent(_ event: String, timed: Bool)
-    func logEvent(_ event: String, withProperties properties: [String: Any], timed: Bool)
-    func endTimedEvent(_ event: String, withProperties properties: [String: Any])
-    func logError(_ name: String, message: String?, properties: [String: Any]?, exception: NSException?)
-    func logError(_ name: String, message: String?, properties: [String: Any]?, error: Error?)
-}
-
-@objcMembers
-public class AnalyticsKit: NSObject {
+public class AnalyticsKit: NSObject
+{
     fileprivate static let DefaultChannel = "default"
 
     static var channels = [String: AnalyticsKitChannel]()
@@ -102,12 +84,12 @@ public class AnalyticsKit: NSObject {
         channel(DefaultChannel).endTimedEvent(event, withProperties: properties)
     }
     
-    public class func logError(_ name: String, message: String?, properties: [String: Any]? = nil, exception: NSException?) {
-        channel(DefaultChannel).logError(name, message: message, properties: properties, exception: exception)
+    public class func logError(_ name: String, message: String?, exception: NSException?) {
+        channel(DefaultChannel).logError(name, message: message, exception: exception)
     }
     
-    public class func logError(_ name: String, message: String?, properties: [String: Any]? = nil, error: Error?) {
-        channel(DefaultChannel).logError(name, message: message, properties: properties, error: error)
+    public class func logError(_ name: String, message: String?, error: Error?) {
+        channel(DefaultChannel).logError(name, message: message, error: error)
     }
 }
 
@@ -208,17 +190,23 @@ public class AnalyticsKitChannel: NSObject, AnalyticsKitProvider {
         }
     }
 
-    public func logError(_ name: String, message: String?, properties: [String: Any]?, exception: NSException?) {
+    public func logError(_ name: String, message: String?, exception: NSException?) {
         AKLog("\(channelName) \(name) message: \(message ?? "nil") exception: \(exception?.description ?? "nil")")
         for provider in providers {
-            provider.logError(name, message: message, properties: properties, exception: exception)
+            provider.logError(name, message: message, exception: exception)
         }
     }
 
-    public func logError(_ name: String, message: String?, properties: [String: Any]?, error: Error?) {
+    public func logError(_ name: String, message: String?, error: Error?) {
         AKLog("\(channelName) \(name) message: \(message ?? "nil") error: \(error?.localizedDescription ?? "nil")")
         for provider in providers {
-            provider.logError(name, message: message, properties: properties, error: error)
+            provider.logError(name, message: message, error: error)
+        }
+    }
+
+    public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [String : Any]?) {
+        for provider in providers {
+            provider.application(application, didFinishLaunchingWithOptions: launchOptions)
         }
     }
 }

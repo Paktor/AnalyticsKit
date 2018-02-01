@@ -3,7 +3,6 @@ import Mixpanel
 
 public class AnalyticsKitMixpanelProvider: NSObject, AnalyticsKitProvider {
 
-    @objc(initWithAPIKey:)
     public init(withAPIKey apiKey: String) {
         Mixpanel.sharedInstance(withToken: apiKey)
     }
@@ -63,33 +62,27 @@ public class AnalyticsKitMixpanelProvider: NSObject, AnalyticsKitProvider {
         Mixpanel.sharedInstance()?.track(event, properties: properties)
     }
 
-    public func logError(_ name: String, message: String?, properties: [String: Any]?, exception: NSException?) {
-        var loggedProperties = [String: Any]()
-        loggedProperties["name"] = name
-        loggedProperties["message"] = message
+    public func logError(_ name: String, message: String?, exception: NSException?) {
+        var properties = [AnyHashable: Any]()
+        properties["name"] = name
+        properties["message"] = message
         if let exception = exception {
-            loggedProperties["ename"] = exception.name
-            loggedProperties["reason"] = exception.reason
-            loggedProperties["userInfo"] = exception.userInfo
-        }
-        if let properties = properties {
-            loggedProperties.merge(properties) { (current, _) in current }
+            properties["ename"] = exception.name
+            properties["reason"] = exception.reason
+            properties["userInfo"] = exception.userInfo
         }
 
-        Mixpanel.sharedInstance()?.track("Exceptions", properties: loggedProperties)
+        Mixpanel.sharedInstance()?.track("Exceptions", properties: properties)
     }
 
-    public func logError(_ name: String, message: String?, properties: [String: Any]?, error: Error?) {
-        var loggedProperties = [String: Any]()
-        loggedProperties["name"] = name
-        loggedProperties["message"] = message
+    public func logError(_ name: String, message: String?, error: Error?) {
+        var properties = [AnyHashable: Any]()
+        properties["name"] = name
+        properties["message"] = message
         if let error = error {
-            loggedProperties["description"] = error.localizedDescription
-        }
-        if let properties = properties {
-            loggedProperties.merge(properties) { (current, _) in current }
+            properties["description"] = error.localizedDescription
         }
 
-        Mixpanel.sharedInstance()?.track("Errors", properties: loggedProperties)
+        Mixpanel.sharedInstance()?.track("Errors", properties: properties)
     }
 }

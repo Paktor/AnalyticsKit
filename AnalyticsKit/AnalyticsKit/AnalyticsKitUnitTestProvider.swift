@@ -95,4 +95,12 @@ public class AnalyticsKitUnitTestProvider: NSObject, AnalyticsKitProvider {
     public func logEvent(_ event: String, withProperties properties: [String: Any], timed: Bool) {
         self.logEvent(event, withProperties: properties)
     }
+
+    public func logError(_ name: String, message: String?, exception: NSException?) {
+
+    }
+
+    public func logError(_ name: String, message: String?, error: Error?) {
+
+    }
 }

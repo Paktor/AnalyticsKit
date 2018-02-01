@@ -1,5 +1,10 @@
 import Foundation
 
+/*
+// import GoogleAnalytics
+
+// import GoogleAnalytics
+
 public class AnalyticsKitGoogleAnalyticsProvider: NSObject, AnalyticsKitProvider {
 
     // Constants used to parsed dictionnary to match Google Analytics tracker properties
@@ -9,7 +14,6 @@ public class AnalyticsKitGoogleAnalyticsProvider: NSObject, AnalyticsKitProvider
     fileprivate let value = "Value"
     fileprivate let tracker: GAITracker
 
-    @objc(initWithTrackingID:)
     public init(withTrackingID trackingId: String) {
         tracker = GAI.sharedInstance().tracker(withTrackingId: trackingId)
     }
@@ -72,15 +76,16 @@ public class AnalyticsKitGoogleAnalyticsProvider: NSObject, AnalyticsKitProvider
         tracker.send(dict)
     }
 
-    public func logError(_ name: String, message: String?, properties: [String: Any]?, exception: NSException?) {
+    public func logError(_ name: String, message: String?, exception: NSException?) {
         // isFatal = NO, presume here, Exception is not fatal.
         let dict = GAIDictionaryBuilder.createException(withDescription: message ?? "nil", withFatal: 0).build() as [NSObject: AnyObject]
         tracker.send(dict)
     }
 
-    public func logError(_ name: String, message: String?, properties: [String: Any]?, error: Error?) {
+    public func logError(_ name: String, message: String?, error: Error?) {
         // isFatal = NO, presume here, Exception is not fatal.
         let dict = GAIDictionaryBuilder.createException(withDescription: message ?? "nil", withFatal: 0).build() as [NSObject: AnyObject]
         tracker.send(dict)
     }
 }
+ */

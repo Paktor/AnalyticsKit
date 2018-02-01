@@ -3,7 +3,6 @@ import Flurry_iOS_SDK
 
 public class AnalyticsKitFlurryProvider: NSObject, AnalyticsKitProvider {
 
-    @objc(initWithAPIKey:)
     public init(withAPIKey apiKey: String) {
         Flurry.startSession(apiKey)
     }
@@ -65,13 +64,13 @@ public class AnalyticsKitFlurryProvider: NSObject, AnalyticsKitProvider {
         }
     }
 
-    public func logError(_ name: String, message: String?, properties: [String: Any]?, exception: NSException?) {
+    public func logError(_ name: String, message: String?, exception: NSException?) {
         runOnMainThread { 
             Flurry.logError(name, message: message, exception: exception)
         }
     }
 
-    public func logError(_ name: String, message: String?, properties: [String: Any]?, error: Error?) {
+    public func logError(_ name: String, message: String?, error: Error?) {
         runOnMainThread {
             Flurry.logError(name, message: message, error: error)
         }

@@ -9,7 +9,7 @@ public class AnalyticsKitTimedEventHelper: NSObject {
     }
 
     public class func startTimedEventWithName(_ name: String, properties: [String: Any]?, forProvider provider: AnalyticsKitProvider) {
-        let providerClass: String = NSStringFromClass(type(of: provider))
+        let providerClass: String = NSStringFromClass(type(of: provider) as! AnyClass)
         var providerDict = events[providerClass]
         if providerDict == nil {
             providerDict = [String : AnalyticsKitEvent]()
@@ -28,7 +28,7 @@ public class AnalyticsKitTimedEventHelper: NSObject {
 
     public class func endTimedEventNamed(_ name: String, forProvider provider: AnalyticsKitProvider) -> AnalyticsKitEvent? {
         var event: AnalyticsKitEvent? = nil
-        let providerClass: String = NSStringFromClass(type(of: provider))
+        let providerClass: String = NSStringFromClass(type(of: provider) as! AnyClass)
         if var providerDict = events[providerClass] {
             event = providerDict[name]
             providerDict.removeValue(forKey: name)
