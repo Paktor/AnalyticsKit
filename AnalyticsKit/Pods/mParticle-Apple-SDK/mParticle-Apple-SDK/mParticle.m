@@ -39,7 +39,7 @@
 #import "MPStateMachine.h"
 #import "MPUserSegments+Setters.h"
 #import "NSURLSession+mParticle.h"
-#import "NSUserDefaults+mParticle.h"
+#import "MPIUserDefaults.h"
 #import "MPConvertJS.h"
 
 #if TARGET_OS_IOS == 1
@@ -58,6 +58,10 @@ NSString *const kMParticleFirstRun = @"firstrun";
 NSString *const kMPMethodName = @"$MethodName";
 NSString *const kMPStateKey = @"state";
 
+@interface MPKitContainer ()
+- (BOOL)kitsInitialized;
+@end
+
 @interface MParticle() <MPBackendControllerDelegate> {
 #if defined(MP_CRASH_REPORTER) && TARGET_OS_IOS == 1
     MPExceptionHandler *exceptionHandler;
@@ -70,6 +74,8 @@ NSString *const kMPStateKey = @"state";
 @property (nonatomic, strong, nullable) NSMutableDictionary *configSettings;
 @property (nonatomic, strong, nullable) MPKitActivity *kitActivity;
 @property (nonatomic, unsafe_unretained) BOOL initialized;
+@property (nonatomic, strong, nonnull) NSMutableArray *kitsInitializedBlocks;
+
 
 @end
 
@@ -78,6 +84,8 @@ NSString *const kMPStateKey = @"state";
 
 @synthesize commerce = _commerce;
 @synthesize optOut = _optOut;
+@synthesize collectUserAgent = _collectUserAgent;
+@synthesize customUserAgent = _customUserAgent;
 
 + (void)initialize {
     eventTypeStrings = @[@"Reserved - Not Used", @"Navigation", @"Location", @"Search", @"Transaction", @"UserContent", @"UserPreference", @"Social", @"Other"];
@@ -89,10 +97,12 @@ NSString *const kMPStateKey = @"state";
         return nil;
     }
 
+    _collectUserAgent = YES;
     privateOptOut = nil;
     isLoggingUncaughtExceptions = NO;
     _initialized = NO;
     _kitActivity = [[MPKitActivity alloc] init];
+    _kitsInitializedBlocks = [NSMutableArray array];
     
     [self addObserver:self forKeyPath:@"backendController.session" options:NSKeyValueObservingOptionNew context:NULL];
     
@@ -413,9 +423,13 @@ NSString *const kMPStateKey = @"state";
     NSAssert([apiKey isKindOfClass:[NSString class]] && [secret isKindOfClass:[NSString class]], @"mParticle SDK apiKey and secret must be of type string.");
     NSAssert(apiKey.length > 0 && secret.length > 0, @"mParticle SDK apiKey and secret cannot be an empty string.");
     NSAssert((NSNull *)apiKey != [NSNull null] && (NSNull *)secret != [NSNull null], @"mParticle SDK apiKey and secret cannot be null.");
+
+    if (self.backendController.initializationStatus != MPInitializationStatusNotStarted) {
+        return;
+    }
     
     __weak MParticle *weakSelf = self;
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    MPIUserDefaults *userDefaults = [MPIUserDefaults standardUserDefaults];
     BOOL firstRun = userDefaults[kMParticleFirstRun] == nil;
     BOOL registerForSilentNotifications = YES;
     _proxiedAppDelegate = proxyAppDelegate;
@@ -423,7 +437,7 @@ NSString *const kMPStateKey = @"state";
     if (self.configSettings) {
         NSNumber *configRegisterForSilentNotifications = self.configSettings[kMPConfigRegisterForSilentNotifications];
         
-        if (configRegisterForSilentNotifications) {
+        if (configRegisterForSilentNotifications != nil) {
             registerForSilentNotifications = [configRegisterForSilentNotifications boolValue];
         }
     }
@@ -493,7 +507,10 @@ NSString *const kMPStateKey = @"state";
     [MPNotificationController setDeviceToken:pushNotificationToken];
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)didReceiveLocalNotification:(UILocalNotification *)notification {
+#pragma clang diagnostic pop
     NSDictionary *userInfo = [MPNotificationController dictionaryFromLocalNotification:notification];
     if (userInfo && !self.proxiedAppDelegate) {
         [[MPAppNotificationHandler sharedInstance] receivedUserNotification:userInfo actionIdentifier:nil userNotificationMode:MPUserNotificationModeLocal];
@@ -524,7 +541,10 @@ NSString *const kMPStateKey = @"state";
     [[MPAppNotificationHandler sharedInstance] didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification {
+#pragma clang diagnostic pop
     NSDictionary *userInfo = [MPNotificationController dictionaryFromLocalNotification:notification];
     if (userInfo && !self.proxiedAppDelegate) {
         [[MPAppNotificationHandler sharedInstance] receivedUserNotification:userInfo actionIdentifier:identifier userNotificationMode:MPUserNotificationModeLocal];
@@ -728,8 +748,10 @@ NSString *const kMPStateKey = @"state";
 
 #pragma mark Deep linking
 - (void)checkForDeferredDeepLinkWithCompletionHandler:(void(^)(NSDictionary * linkInfo, NSError *error))completionHandler {
-    [[MPKitContainer sharedInstance] forwardSDKCall:@selector(checkForDeferredDeepLinkWithCompletionHandler:) kitHandler:^(id<MPKitProtocol> _Nonnull kit, MPKitExecStatus * __autoreleasing  _Nonnull * _Nonnull execStatus) {
-        [kit checkForDeferredDeepLinkWithCompletionHandler:completionHandler];
+    [[MParticle sharedInstance] onKitsInitialized:^{
+        [[MPKitContainer sharedInstance] forwardSDKCall:@selector(checkForDeferredDeepLinkWithCompletionHandler:) kitHandler:^(id<MPKitProtocol> _Nonnull kit, MPKitExecStatus * __autoreleasing  _Nonnull * _Nonnull execStatus) {
+            [kit checkForDeferredDeepLinkWithCompletionHandler:completionHandler];
+        }];
     }];
 }
 
@@ -992,8 +1014,8 @@ NSString *const kMPStateKey = @"state";
 - (nonnull MPKitExecStatus *)setIntegrationAttributes:(nonnull NSDictionary<NSString *, NSString *> *)attributes forKit:(nonnull NSNumber *)kitCode {
     __block MPKitReturnCode returnCode = MPKitReturnCodeSuccess;
     
-    if (self.backendController.initializationStatus != MPInitializationStatusStarted) {
-        MPILogError(@"Cannot set integration attributes. mParticle SDK is not initialized yet.");
+    if (self.backendController.initializationStatus == MPInitializationStatusNotStarted) {
+        MPILogError(@"Cannot set integration attributes. mParticle SDK is not started yet.");
         returnCode = MPKitReturnCodeCannotExecute;
     }
 
@@ -1012,8 +1034,8 @@ NSString *const kMPStateKey = @"state";
     MPKitReturnCode returnCode = MPKitReturnCodeSuccess;
     BOOL validKitCode = [MPKitInstanceValidator isValidKitCode:kitCode];
     
-    if (self.backendController.initializationStatus != MPInitializationStatusStarted) {
-        MPILogError(@"Cannot clear integration attributes. mParticle SDK is not initialized yet.");
+    if (self.backendController.initializationStatus == MPInitializationStatusNotStarted) {
+        MPILogError(@"Cannot clear integration attributes. mParticle SDK is not started yet.");
         returnCode = MPKitReturnCodeCannotExecute;
     }
 
@@ -1027,6 +1049,23 @@ NSString *const kMPStateKey = @"state";
 }
 
 #pragma mark Kits
+
+- (void)onKitsInitialized:(void(^)(void))block {
+    BOOL kitsInitialized = [MPKitContainer sharedInstance].kitsInitialized;
+    if (kitsInitialized) {
+        block();
+    } else {
+        [self.kitsInitializedBlocks addObject:[block copy]];
+    }
+}
+
+- (void)executeKitsInitializedBlocks {
+    [self.kitsInitializedBlocks enumerateObjectsUsingBlock:^(void (^block)(void), NSUInteger idx, BOOL * _Nonnull stop) {
+        block();
+    }];
+    [self.kitsInitializedBlocks removeAllObjects];
+}
+
 - (BOOL)isKitActive:(nonnull NSNumber *)kitCode {
     BOOL isValidKitCode = [kitCode isKindOfClass:[NSNumber class]] && [MPKitInstanceValidator isValidKitCode:kitCode];
     NSAssert(isValidKitCode, @"The value in kitCode is not valid. See MPKitInstance.");
@@ -1255,7 +1294,7 @@ NSString *const kMPStateKey = @"state";
     }
     
     NSMutableDictionary *userAttributes = nil;
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    MPIUserDefaults *userDefaults = [MPIUserDefaults standardUserDefaults];
     NSDictionary *savedUserAttributes = userDefaults[kMPUserAttributeKey];
     if (savedUserAttributes) {
         userAttributes = [[NSMutableDictionary alloc] initWithCapacity:savedUserAttributes.count];

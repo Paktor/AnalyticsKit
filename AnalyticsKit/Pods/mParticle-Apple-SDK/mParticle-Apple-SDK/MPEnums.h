@@ -121,7 +121,7 @@ typedef NS_ENUM(NSUInteger, MPSurveyProvider) {
 typedef NS_ENUM(NSUInteger, MPUserIdentity) {
     /** User identity other */
     MPUserIdentityOther = 0,
-    /** User identity customer id. This is an id issue by your own system */
+    /** User identity customer id. This is an id issued by your own system */
     MPUserIdentityCustomerId,
     /** User identity Facebook */
     MPUserIdentityFacebook,
@@ -179,6 +179,8 @@ typedef NS_ENUM(NSUInteger, MPKitInstance) {
     MPKitInstanceApptentive = 97,
     /** Kit code for Leanplum */
     MPKitInstanceLeanplum = 98,
+    /** Kit code for Carnival */
+    MPKitInstanceCarnival = 99,
     /** Kit code for Primer */
     MPKitInstancePrimer = 100,
     /** Kit code for Apptimize */
@@ -192,7 +194,13 @@ typedef NS_ENUM(NSUInteger, MPKitInstance) {
     /** Kit code for Iterable */
     MPKitInstanceIterable = 1003,
     /** Kit code for Button */
-    MPKitInstanceButton = 1022
+    MPKitInstanceButton = 1022,
+    /** Kit code for Singular */
+    MPKitInstanceSingular = 119,
+    /** Kit code for Adobe */
+    MPKitInstanceAdobe = 124,
+    /** Kit code for Instabot */
+    MPKitInstanceInstabot = 123
 };
 
 /// Log Levels

@@ -209,6 +209,14 @@ public class AnalyticsKitChannel: NSObject, AnalyticsKitProvider {
             provider.application(application, didFinishLaunchingWithOptions: launchOptions)
         }
     }
+
+    public func setConfiguration(configuration: (AnalyticsKitProvider) -> ())
+    {
+        for provider in providers {
+            provider.setConfiguration(configuration: configuration)
+        }
+    }
+    
 }
 
 private func AKLog(_ message: String, _ file: String = #file, _ function: String = #function, _ line: Int = #line) {

@@ -28,7 +28,7 @@
 #define ARCHIVED_MESSAGES_DIRECTORY_PATH [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)[0] stringByAppendingPathComponent:@"ArchivedMessages"];
 #define STATE_MACHINE_DIRECTORY_PATH [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0] stringByAppendingPathComponent:@"StateMachine"];
 
-#define MPIsNull(object) (!(object) || (NSNull *)(object) == [NSNull null])
+#define MPIsNull(object) ((object) == nil || (NSNull *)(object) == [NSNull null])
 
 typedef NS_ENUM(NSInteger, MPUploadStatus) {
     MPUploadStatusUnknown = -1,
@@ -181,6 +181,7 @@ extern NSString * _Nonnull const kMPHTTPETagHeaderKey;
 extern NSString * _Nonnull const kMPAppSearchAdsAttributionKey;
 extern NSString * _Nonnull const kMPSynchedUserAttributesKey;
 extern NSString * _Nonnull const kMPSynchedUserIdentitiesKey;
+extern NSString * _Nonnull const kMPLastConfigReceivedKey;
 
 // Remote configuration
 extern NSString * _Nonnull const kMPRemoteConfigExceptionHandlingModeKey;
@@ -215,7 +216,6 @@ extern NSString * _Nonnull const kMPRemoteConfigLocationKey;
 extern NSString * _Nonnull const kMPRemoteConfigLocationModeKey;
 extern NSString * _Nonnull const kMPRemoteConfigLocationAccuracyKey;
 extern NSString * _Nonnull const kMPRemoteConfigLocationMinimumDistanceKey;
-extern NSString * _Nonnull const kMPRemoteConfigLatestSDKVersionKey;
 extern NSString * _Nonnull const kMPRemoteConfigRampKey;
 extern NSString * _Nonnull const kMPRemoteConfigTriggerKey;
 extern NSString * _Nonnull const kMPRemoteConfigTriggerEventsKey;
@@ -303,6 +303,10 @@ extern const NSTimeInterval DEFAULT_UPLOAD_INTERVAL;
 extern const NSTimeInterval INITIAL_UPLOAD_TIME;
 
 extern const NSUInteger EVENT_LIMIT; // maximum number of events per session
+
+// How long to block config requests after a successful response.
+extern const NSTimeInterval DEBUG_CONFIG_REQUESTS_QUIET_INTERVAL;
+extern const NSTimeInterval CONFIG_REQUESTS_QUIET_INTERVAL;
 
 // Attributes limits
 extern const NSInteger LIMIT_ATTR_COUNT;

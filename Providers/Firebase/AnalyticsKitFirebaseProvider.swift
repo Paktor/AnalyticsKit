@@ -4,6 +4,7 @@ import FirebaseAnalytics
 
 public class AnalyticsKitFirebaseProvider: NSObject, AnalyticsKitProvider
 {
+    private var privacyProperties: [String]!
 
     private static var eventCharacterSet: CharacterSet = {
         var cs = CharacterSet.alphanumerics
@@ -16,6 +17,14 @@ public class AnalyticsKitFirebaseProvider: NSObject, AnalyticsKitProvider
         super.init()
         FirebaseApp.configure()
     }
+
+    public convenience init(privacyProperties: [String] = [])
+    {
+        self.init()
+        self.privacyProperties = privacyProperties
+    }
+
+    
 
     // Lifecycle
     public func applicationWillEnterForeground()
@@ -48,12 +57,12 @@ public class AnalyticsKitFirebaseProvider: NSObject, AnalyticsKitProvider
 
     public func logEvent(_ event: String, withProperty key: String, andValue value: String)
     {
-        logFbEvent(event, parameters: [key: value])
+        logFbEvent(event, parameters: self.filteredProperties(params: [key: value]))
     }
 
     public func logEvent(_ event: String, withProperties properties: [String: Any])
     {
-        logFbEvent(event, parameters: properties)
+        logFbEvent(event, parameters: self.filteredProperties(params: properties))
     }
 
     public func logEvent(_ event: String, timed: Bool)
@@ -63,7 +72,7 @@ public class AnalyticsKitFirebaseProvider: NSObject, AnalyticsKitProvider
 
     public func logEvent(_ event: String, withProperties dict: [String: Any], timed: Bool)
     {
-        logFbEvent(event, parameters: dict)
+        logFbEvent(event, parameters: self.filteredProperties(params: dict))
     }
 
     public func endTimedEvent(_ event: String, withProperties dict: [String: Any])
@@ -99,6 +108,11 @@ public class AnalyticsKitFirebaseProvider: NSObject, AnalyticsKitProvider
         snakeCaseEvent = snakeCaseEvent.lowercased()
         snakeCaseEvent = snakeCaseEvent.components(separatedBy: AnalyticsKitFirebaseProvider.eventCharacterSet).joined()
         Analytics.logEvent(snakeCaseEvent, parameters: parameters)
+    }
+
+    public var ignoredProperties: [String]
+    {
+        return self.privacyProperties
     }
 
 }

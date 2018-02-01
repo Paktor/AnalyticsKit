@@ -25,13 +25,44 @@ public protocol AnalyticsKitProvider
     func logError(_ name: String, message: String?, error: Error?)
     func application(_ application: UIApplication, didFinishLaunchingWithOptions
                         launchOptions: [String : Any]?)
+    func filteredProperties(params: [String: Any]) -> [String: Any]
+    var ignoredProperties: [String] { get }
+
+    func setConfiguration(configuration: (AnalyticsKitProvider) -> ())
 }
 
 extension AnalyticsKitProvider
 {
-   public func application(_ application: UIApplication,
+    public func applicationWillEnterForeground() { }
+    public func applicationDidEnterBackground() { }
+
+    public func application(_ application: UIApplication,
                            didFinishLaunchingWithOptions launchOptions: [String : Any]?)
     {
 
     }
+
+    public func filteredProperties(params: [String : Any]) -> [String : Any]
+    {
+        var parameters: [String:AnyObject] = [:]
+        for (label, value) in params
+        {
+            if !self.ignoredProperties.contains(label)
+            {
+                parameters[label] = String(describing: value) as NSString
+            }
+        }
+        return parameters
+    }
+
+    public var ignoredProperties: [String]
+    {
+        return []
+    }
+
+    public func setConfiguration(configuration: (AnalyticsKitProvider) -> ())
+    {
+        configuration(self)
+    }
+
 }

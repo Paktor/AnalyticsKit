@@ -21,7 +21,7 @@
 #import <dlfcn.h>
 #import <mach-o/arch.h>
 #import <mach-o/dyld.h>
-#import "NSUserDefaults+mParticle.h"
+#import "MPIUserDefaults.h"
 #import <UIKit/UIKit.h>
 #import "MPStateMachine.h"
 #import "MPSearchAdsAttribution.h"
@@ -51,7 +51,7 @@ static NSString *kMPAppStoreReceiptString = nil;
 
 @interface MPApplication() {
     NSDictionary *appInfo;
-    NSUserDefaults *userDefaults;
+    MPIUserDefaults *userDefaults;
     BOOL syncUserDefaults;
 }
 
@@ -81,7 +81,7 @@ static NSString *kMPAppStoreReceiptString = nil;
         return nil;
     }
     
-    userDefaults = [NSUserDefaults standardUserDefaults];
+    userDefaults = [MPIUserDefaults standardUserDefaults];
     syncUserDefaults = NO;
     
     return self;
@@ -90,7 +90,7 @@ static NSString *kMPAppStoreReceiptString = nil;
 - (void)dealloc {
     if (syncUserDefaults) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSUserDefaults standardUserDefaults] synchronize];
+            [[MPIUserDefaults standardUserDefaults] synchronize];
         });
     }
 }
@@ -172,13 +172,13 @@ static NSString *kMPAppStoreReceiptString = nil;
 }
 
 - (NSNumber *)initialLaunchTime {
-    if (_initialLaunchTime) {
+    if (_initialLaunchTime != nil) {
         return _initialLaunchTime;
     }
     
     _initialLaunchTime = userDefaults[kMPAppInitialLaunchTimeKey];
     
-    if (!_initialLaunchTime) {
+    if (_initialLaunchTime == nil) {
         _initialLaunchTime = MPCurrentEpochInMilliseconds;
         userDefaults[kMPAppInitialLaunchTimeKey] = _initialLaunchTime;
         syncUserDefaults = YES;
@@ -194,7 +194,7 @@ static NSString *kMPAppStoreReceiptString = nil;
 
 - (NSNumber *)lastUseDate {
     NSNumber *lastUseDate = userDefaults[kMPAppLastUseDateKey];
-    if (!lastUseDate) {
+    if (lastUseDate == nil) {
         lastUseDate = MPMilliseconds([[MPStateMachine sharedInstance].launchDate timeIntervalSince1970]);
     }
     
@@ -289,7 +289,10 @@ static NSString *kMPAppStoreReceiptString = nil;
     UIApplication *app = [UIApplication sharedApplication];
     
     if ([[UIDevice currentDevice].systemVersion floatValue] >= 8.0) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         UIUserNotificationSettings *userNotificationSettings = [app currentUserNotificationSettings];
+#pragma clang diagnostic pop
         notificationTypes = @(userNotificationSettings.types);
     } else {
 #pragma clang diagnostic push
@@ -327,10 +330,10 @@ static NSString *kMPAppStoreReceiptString = nil;
 }
 
 + (void)markInitialLaunchTime {
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    MPIUserDefaults *userDefaults = [MPIUserDefaults standardUserDefaults];
     NSNumber *initialLaunchTime = userDefaults[kMPAppInitialLaunchTimeKey];
     
-    if (!initialLaunchTime) {
+    if (initialLaunchTime == nil) {
         initialLaunchTime = MPCurrentEpochInMilliseconds;
         userDefaults[kMPAppInitialLaunchTimeKey] = initialLaunchTime;
         
@@ -353,7 +356,7 @@ static NSString *kMPAppStoreReceiptString = nil;
     if (![application.version isEqualToString:application.storedVersion] || ![application.build isEqualToString:application.storedBuild]) {
         application.launchCountSinceUpgrade = @1;
         application.upgradeDate = MPCurrentEpochInMilliseconds;
-        [[NSUserDefaults standardUserDefaults] removeMPObjectForKey:kMPHTTPETagHeaderKey];
+        [[MPIUserDefaults standardUserDefaults] removeMPObjectForKey:kMPHTTPETagHeaderKey];
     } else {
         application.launchCountSinceUpgrade = @([application.launchCountSinceUpgrade integerValue] + 1);
     }
@@ -368,7 +371,13 @@ static NSString *kMPAppStoreReceiptString = nil;
 #pragma mark Public methods
 - (NSDictionary<NSString *, id> *)dictionaryRepresentation {
     if (appInfo) {
-        return appInfo;
+        NSMutableDictionary<NSString *, id> *mutableAppInfo = [appInfo mutableCopy];
+        
+        NSDictionary *auxDictionary = self.searchAdsAttribution;
+        if (auxDictionary) {
+            mutableAppInfo[kMPAppSearchAdsAttributionKey] = auxDictionary;
+        }
+        return [mutableAppInfo copy];
     }
     
     NSMutableDictionary<NSString *, id> *applicationInfo;
@@ -409,22 +418,22 @@ static NSString *kMPAppStoreReceiptString = nil;
     }
     
     NSNumber *auxNumber = self.upgradeDate;
-    if (auxNumber) {
+    if (auxNumber != nil) {
         applicationInfo[kMPAppUpgradeDateKey] = auxNumber;
     }
     
     auxNumber = self.launchCount;
-    if (auxNumber) {
+    if (auxNumber != nil) {
         applicationInfo[kMPAppLaunchCountKey] = auxNumber;
     }
     
     auxNumber = self.launchCountSinceUpgrade;
-    if (auxNumber) {
+    if (auxNumber != nil) {
         applicationInfo[kMPAppLaunchCountSinceUpgradeKey] = auxNumber;
     }
     
     auxNumber = self.lastUseDate;
-    if (auxNumber) {
+    if (auxNumber != nil) {
         applicationInfo[kMPAppLastUseDateKey] = auxNumber;
     }
     
@@ -446,7 +455,7 @@ static NSString *kMPAppStoreReceiptString = nil;
     applicationInfo[kMPDeviceSupportedPushNotificationTypesKey] = self.remoteNotificationTypes;
     
     NSNumber *badgeNumber = self.badgeNumber;
-    if (badgeNumber) {
+    if (badgeNumber != nil) {
         applicationInfo[kMPAppBadgeNumberKey] = badgeNumber;
     }
 #endif

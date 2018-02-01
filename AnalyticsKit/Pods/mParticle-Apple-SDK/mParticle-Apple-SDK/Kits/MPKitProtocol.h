@@ -31,6 +31,7 @@
 @class MPEvent;
 @class MPKitExecStatus;
 @class MPUserSegments;
+@class MPKitAPI;
 
 #if TARGET_OS_IOS == 1 && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
     @class UNUserNotificationCenter;
@@ -53,6 +54,7 @@
 @property (nonatomic, strong, nonnull) NSDictionary *configuration;
 @property (nonatomic, strong, nullable) NSDictionary *launchOptions;
 @property (nonatomic, strong, nullable, readonly) id providerKitInstance;
+@property (nonatomic, strong, nullable) MPKitAPI *kitApi;
 
 #pragma mark Kit lifecycle
 - (void)start;
@@ -75,7 +77,7 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (nonnull MPKitExecStatus *)didRegisterUserNotificationSettings:(nonnull UIUserNotificationSettings *)notificationSettings;
-#pragma clang pop
+#pragma clang diagnostic pop
 #endif
 
 #pragma mark User Notifications
@@ -131,7 +133,7 @@
 - (nonnull MPKitExecStatus *)setKitAttribute:(nonnull NSString *)key value:(nullable id)value;
 - (nonnull MPKitExecStatus *)setOptOut:(BOOL)optOut;
 - (nullable NSString *)surveyURLWithUserAttributes:(nonnull NSDictionary *)userAttributes;
-
+- (BOOL) shouldDelayMParticleUpload;
 @end
 
 #endif

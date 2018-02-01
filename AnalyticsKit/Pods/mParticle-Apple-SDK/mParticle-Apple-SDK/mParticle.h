@@ -38,6 +38,7 @@
 #import "MPUserSegments.h"
 #import "NSArray+MPCaseInsensitive.h"
 #import "NSDictionary+MPCaseInsensitive.h"
+#import "MPKitAPI.h"
 #import <UIKit/UIKit.h>
 
 #if TARGET_OS_IOS == 1
@@ -72,7 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark Properties
 /**
  This property is an instance of MPBag, which used to describe a product bag to hold the state of products in the hands of a user. Please note a difference
- when compared with a shopping cart. A product bag is intendend to represent product samples shipped for trial by a user, which
+ when compared with a shopping cart. A product bag is intended to represent product samples shipped for trial by a user, which
  later may return the samples or add one or more to a shopping cart with the intent of purchasing them.
  
  Bags, and products added to them are persisted throughout the lifetime of the application. It is up to you to remove products from
@@ -140,6 +141,19 @@ NS_ASSUME_NONNULL_BEGIN
  The default value is NO (opt-in of event tracking)
  */
 @property (nonatomic, unsafe_unretained, readwrite) BOOL optOut;
+
+/**
+ Gets/Sets the user agent to a custom value.
+ */
+@property (atomic, strong, nullable) NSString *customUserAgent;
+
+/**
+ Determines whether the mParticle Apple SDK will instantiate a UIWebView in order to collect the browser user agent.
+ This value is required by attribution providers for fingerprint identification, when device IDs are not available.
+ If you disable this flag, consider populating the user agent via the customUserAgent property above if you are using
+ an attribution provider (such as Kochava or Tune) via mParticle. Defaults to YES
+ */
+@property (atomic, unsafe_unretained, readwrite) BOOL collectUserAgent;
 
 /**
  A flag indicating whether the mParticle Apple SDK has proxied the App Delegate and is handling
@@ -259,7 +273,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)didReceiveLocalNotification:(UILocalNotification *)notification;
-#pragma clang pop
+#pragma clang diagnostic pop
 
 /**
  Informs the mParticle SDK a remote notification has been received. This method should be called only if proxiedAppDelegate is disabled.
@@ -292,7 +306,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)handleActionWithIdentifier:(nullable NSString *)identifier forLocalNotification:(nullable UILocalNotification *)notification;
-#pragma clang pop
+#pragma clang diagnostic pop
 
 /**
  Informs the mParticle SDK the app has been activated because the user selected a custom action from the alert panel of a remote notification.
@@ -344,7 +358,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Begins timing an event. There can be many timed events going on at the same time, the only requirement is that each
  concurrent timed event must have a unique event name. After beginning a timed event you don't have to keep a reference
- to the event instance being timed, you can use the eventWithName: method to retrive it later when ending the timed event.
+ to the event instance being timed, you can use the eventWithName: method to retrieve it later when ending the timed event.
  @param event An instance of MPEvent
  @see MPEvent
  */
@@ -352,7 +366,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  Ends timing an event and logs its data to the mParticle SDK. If you didn't keep a reference to the event
- being timed, you can use the eventWithName: method to retrive it.
+ being timed, you can use the eventWithName: method to retrieve it.
  @param event An instance of MPEvent
  @see beginTimedEvent:
  */
@@ -360,7 +374,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  When working with timed events you don't need to keep a reference to the event being timed. You can use this method
- to retrive the event being timed passing the event name as parameter. If an instance of MPEvent, with a matching
+ to retrieve the event being timed passing the event name as parameter. If an instance of MPEvent, with a matching
  event name cannot be found, this method will return nil.
  @param eventName A string with the event name associated with the event being timed
  @returns An instance of MPEvent, if one could be found, or nil.
@@ -456,14 +470,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  Logs an exception.
- @param exception The exception which occured
+ @param exception The exception which occurred
  @see logException:topmostContext:
  */
 - (void)logException:(NSException *)exception;
 
 /**
  Logs an exception and a context.
- @param exception The exception which occured
+ @param exception The exception which occurred
  @param topmostContext The topmost context of the app, typically the topmost view controller
  */
 - (void)logException:(NSException *)exception topmostContext:(nullable id)topmostContext;
@@ -506,6 +520,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (MPKitExecStatus *)clearIntegrationAttributesForKit:(NSNumber *)kitCode;
 
 #pragma mark - Kits
+/**
+ Allows you to schedule code to run after all kits have been initialized. If kits have already been initialized,
+ your block will be invoked immediately. If not, your block will be copied and the copy will be invoked once
+ kit initialization is finished.
+ @param block A block to be invoked once kits are initialized
+ */
+- (void)onKitsInitialized:(void(^)(void))block;
+
 /**
  Returns whether a kit is active or not. You can retrieve if a kit has been already initialized and
  can be used.
@@ -614,7 +636,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  By default mParticle SDK will remove the query part of all URLs. Use this method to add an exception to the default
- behavior and include the query compoment of any URL containing queryString. You can call this method multiple times, passing a query string at a time.
+ behavior and include the query component of any URL containing queryString. You can call this method multiple times, passing a query string at a time.
  @param queryString A string with the query component to be included and reported in network performance measurement.
  */
 - (void)preserveQueryMeasuringNetworkPerformance:(NSString *)queryString;
@@ -720,14 +742,14 @@ NS_ASSUME_NONNULL_BEGIN
  @param center The notification center that received the notification
  @param notification The notification that is about to be delivered
  */
-- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification;
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification NS_AVAILABLE_IOS(10.0);
 
 /**
  Informs the mParticle SDK that the user has interacted with a given notification
  @param center The notification center that received the notification
  @param response The user’s response to the notification
  */
-- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response;
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response NS_AVAILABLE_IOS(10.0);
 #endif
 
 #pragma mark - User Segments

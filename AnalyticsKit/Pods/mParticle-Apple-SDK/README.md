@@ -6,7 +6,7 @@ Hello! This is the public repository of the unified mParticle Apple SDK built fo
 
 At mParticle our mission is straightforward: make it really easy for apps and app services to connect and take ownership of your 1st party data. Like most app owners, you end up implementing and maintaining numerous SDKs ranging from analytics, attribution, push notification, remarketing, monetization, etc. However, embedding multiple 3rd party libraries creates a number of unintended consequences and hidden costs.
 
-The mParticle platform addresses all these problems. We support an ever growing number of integrations with services and SDKs, including developer tools, analytics, attribution, messaging, advertising, and more. mParticle has been designed to be the central hub connecting all these services – check [our site](https://www.mparticle.com), or hit us at <dev@mparticle.com> to learn more.
+The mParticle platform addresses all these problems. We support an ever growing number of integrations with services and SDKs, including developer tools, analytics, attribution, messaging, advertising, and more. mParticle has been designed to be the central hub connecting all these services – check [our site](https://www.mparticle.com), or hit us at <support@mparticle.com> to learn more.
 
 
 ## Overview
@@ -98,22 +98,25 @@ Kit | CocoaPods | Carthage
 ----|:---------:|:-------:
 [Adjust](https://github.com/mparticle-integrations/mparticle-apple-integration-adjust)                |  ✓ | ✓
 [Appboy](https://github.com/mparticle-integrations/mparticle-apple-integration-appboy)                |  ✓ | ✓
+[Adobe](https://github.com/mparticle-integrations/mparticle-apple-integration-adobe)                  |  ✓ | ✓
 [AppsFlyer](https://github.com/mparticle-integrations/mparticle-apple-integration-appsflyer)          |  ✓ | ✓ 
-[Apptentive](https://github.com/mparticle-integrations/mparticle-apple-integration-apptentive)        |  ✓ |   
+[Apptentive](https://github.com/mparticle-integrations/mparticle-apple-integration-apptentive)        |  ✓ | ✓ 
 [Apptimize](https://github.com/mparticle-integrations/mparticle-apple-integration-apptimize)          |  ✓ |   
 [Apteligent](https://github.com/mparticle-integrations/mparticle-apple-integration-apteligent)        |  ✓ |  
 [Branch Metrics](https://github.com/mparticle-integrations/mparticle-apple-integration-branchmetrics) |  ✓ | ✓
 [Button](https://github.com/mparticle-integrations/mparticle-apple-integration-button)                |  ✓ | ✓
 [comScore](https://github.com/mparticle-integrations/mparticle-apple-integration-comscore)            |  ✓ |  
 [Flurry](https://github.com/mparticle-integrations/mparticle-apple-integration-flurry)                |  ✓ |  
-[Iterable](https://github.com/mparticle-integrations/mparticle-apple-integration-iterable)            |  ✓ |  
+[Instabot](https://github.com/mparticle-integrations/mparticle-apple-integration-instabot)            |  ✓ |  
+[Iterable](https://github.com/mparticle-integrations/mparticle-apple-integration-iterable)            |  ✓ | ✓ 
 [Kahuna](https://github.com/mparticle-integrations/mparticle-apple-integration-kahuna)                |  ✓ |  
 [Kochava](https://github.com/mparticle-integrations/mparticle-apple-integration-kochava)              |  ✓ |  
-[Leanplum](https://github.com/mparticle-integrations/mparticle-apple-integration-leanplum)            |  ✓ |  
+[Leanplum](https://github.com/mparticle-integrations/mparticle-apple-integration-leanplum)            |  ✓ | ✓
 [Localytics](https://github.com/mparticle-integrations/mparticle-apple-integration-localytics)        |  ✓ |  
 [Primer](https://github.com/mparticle-integrations/mparticle-apple-integration-primer)                |  ✓ | ✓
 [Radar](https://github.com/mparticle-integrations/mparticle-apple-integration-radar)                  |  ✓ | 
 [Reveal Mobile](https://github.com/mparticle-integrations/mparticle-apple-integration-revealmobile)   |  ✓ |  
+[Singular](https://github.com/mparticle-integrations/mparticle-apple-integration-singular)            |  ✓ |  
 [Skyhook](https://github.com/mparticle-integrations/mparticle-apple-integration-skyhook)              |  ✓ |  
 [Tune](https://github.com/mparticle-integrations/mparticle-apple-integration-tune)                    |  ✓ | ✓
 [Urban Airship](https://github.com/mparticle-integrations/mparticle-apple-integration-urbanairship)   |  ✓ |  

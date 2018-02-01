@@ -25,6 +25,7 @@
 #import "MPBags.h"
 #import "MPEvent.h"
 #import "MPDateFormatter.h"
+#import "MPKitAPI.h"
 #import "MPKitProtocol.h"
 #import "NSArray+MPCaseInsensitive.h"
 #import "MPPromotion.h"

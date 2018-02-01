@@ -435,24 +435,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)track:(NSString *)event properties:(nullable NSDictionary *)properties;
 
-
-/*!
- @method
-
- @abstract
- Track a push notification using its payload sent from Mixpanel.
-
- @discussion
- To simplify user interaction tracking and a/b testing, Mixpanel
- automatically sends IDs for the relevant notification and a/b variants
- of each push. This method parses the standard payload and queues a
- track call using this information.
-
- @param userInfo         remote notification payload dictionary
- */
-- (void)trackPushNotification:(NSDictionary *)userInfo;
-
-
 /*!
  @method
 
@@ -628,7 +610,7 @@ NS_ASSUME_NONNULL_BEGIN
  are called when an app is brought to the background and require a handler to
  be called when it finishes.
  */
-- (void)flushWithCompletion:(nullable void (^)())handler;
+- (void)flushWithCompletion:(nullable void (^)(void))handler;
 
 /*!
  @method
@@ -746,7 +728,7 @@ NS_ASSUME_NONNULL_BEGIN
  Same as joinExperiments but will fire the given callback after all experiments
  have been loaded and applied.
  */
-- (void)joinExperimentsWithCallback:(nullable void (^)())experimentsLoadedCallback;
+- (void)joinExperimentsWithCallback:(nullable void (^)(void))experimentsLoadedCallback;
 
 #endif // MIXPANEL_NO_NOTIFICATION_AB_TEST_SUPPORT
 
