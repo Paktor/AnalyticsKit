@@ -41,7 +41,7 @@ source 'https://github.com/Paktor/AnalyticsKit'
 To install it, simply add the following line to your Podfile:
 
 ```ruby
-pod 'AnalyticsKit', :subspecs => ["Crashlytics", "Firebase"]
+pod 'AnalyticsKit', :git => 'https://github.com/Paktor/AnalyticsKit.git', :branch => 'master', :subspecs => ["Crashlytics", "Firebase"]
 ```
 You can add any of the providers you want to use inside the *subspecs* array.
 
