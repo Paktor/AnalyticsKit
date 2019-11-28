@@ -94,7 +94,7 @@ Pod::Spec.new do |s|
   s.subspec 'AppsFlyer' do |a|
     a.source_files = 'Providers/AppsFlyer/AnalyticsKitAppsFlyerProvider.swift'
     a.framework = 'AppsFlyerLib'
-    a.dependency 'AppsFlyerFramework', '~> 4.8'
+    a.dependency 'AppsFlyerFramework', '~> 5.0'
     a.dependency 'AnalyticsKit/Core'
     a.pod_target_xcconfig = {
       'FRAMEWORK_SEARCH_PATHS' => '$(inherited) $(PODS_ROOT)/AppsFlyerFramework'
