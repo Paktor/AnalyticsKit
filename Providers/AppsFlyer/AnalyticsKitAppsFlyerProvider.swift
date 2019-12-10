@@ -3,6 +3,34 @@ import AppsFlyerLib
 
 public class AnalyticsKitAppsFlyerProvider: NSObject, AnalyticsKitProvider, AppsFlyerTrackerDelegate
 {
+    public func onConversionDataSuccess(_ conversionInfo: [AnyHashable : Any]!)
+    {
+        guard let first_launch_flag = conversionInfo["is_first_launch"] as? Int else {
+            return
+        }
+        
+        guard let status = conversionInfo["af_status"] as? String else {
+            return
+        }
+        
+        if (first_launch_flag == 1) {
+            if (status == "Non-organic") {
+                if let media_source = conversionInfo["media_source"] , let campaign = conversionInfo["campaign"] {
+                    print("This is a Non-Organic install. Media source: \(media_source) Campaign: \(campaign)")
+                }
+            } else {
+                print("This is an organic install.")
+            }
+        } else {
+            print("Not First Launch")
+        }
+    }
+    
+    public func onConversionDataFail(_ error: Error!)
+    {
+        // nothing
+    }
+    
     private var privacyProperties: [String]!
 
     public init(apiKey: String,
