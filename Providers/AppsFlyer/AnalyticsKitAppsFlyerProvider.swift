@@ -3,7 +3,7 @@ import AppsFlyerLib
 
 public class AnalyticsKitAppsFlyerProvider: NSObject, AnalyticsKitProvider, AppsFlyerTrackerDelegate
 {
-    public func onConversionDataSuccess(_ conversionInfo: [AnyHashable : Any]!)
+    public func onConversionDataSuccess(_ conversionInfo: [AnyHashable : Any])
     {
         guard let first_launch_flag = conversionInfo["is_first_launch"] as? Int else {
             return
@@ -24,12 +24,26 @@ public class AnalyticsKitAppsFlyerProvider: NSObject, AnalyticsKitProvider, Apps
         } else {
             print("Not First Launch")
         }
+        
+        trackerDelegate?.onConversionDataSuccess(conversionInfo)
     }
     
-    public func onConversionDataFail(_ error: Error!)
+    public func onConversionDataFail(_ error: Error)
     {
-        // nothing
+        trackerDelegate?.onConversionDataFail(error)
     }
+    
+    public func onAppOpenAttribution(_ attributionData: [AnyHashable : Any])
+    {
+        trackerDelegate?.onAppOpenAttribution?(attributionData)
+    }
+    
+    public func onAppOpenAttributionFailure(_ error: Error)
+    {
+        trackerDelegate?.onAppOpenAttributionFailure?(error)
+    }
+    
+    public var trackerDelegate: AppsFlyerTrackerDelegate?
     
     private var privacyProperties: [String]!
 
